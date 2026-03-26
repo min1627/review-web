@@ -1,101 +1,116 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import StatsOverview from "@/components/StatsOverview";
+import RankingTable from "@/components/RankingTable";
+import DatePicker from "@/components/DatePicker";
+
+interface Stats {
+  productCount: number;
+  totalReviews: number;
+  avgRating: number;
+  todayNewReviews: number;
+  categories: Array<{ id: number; category_name: string }>;
+  availableDates: string[];
+}
+
+export default function HomePage() {
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [rankings, setRankings] = useState<any[]>([]);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((data) => {
+        setStats(data);
+        if (data.availableDates?.length > 0) {
+          const latest =
+            typeof data.availableDates[0] === "string"
+              ? data.availableDates[0]
+              : new Date(data.availableDates[0]).toISOString().split("T")[0];
+          setSelectedDate(latest);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    const params = new URLSearchParams({ date: selectedDate });
+    if (selectedCategory) params.set("categoryId", selectedCategory);
+
+    fetch(`/api/rankings?${params}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setRankings(data.rankings || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [selectedDate, selectedCategory]);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+    <div className="space-y-8">
+      {/* 헤더 */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">오늘의 랭킹 + 요약</h1>
+        <DatePicker
+          label="날짜"
+          value={selectedDate}
+          onChange={setSelectedDate}
+          availableDates={stats?.availableDates}
         />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* 통계 카드 */}
+      {stats && <StatsOverview stats={stats} />}
+
+      {/* 카테고리 선택 */}
+      {stats?.categories && stats.categories.length > 0 && (
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-muted-foreground">
+            카테고리:
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedCategory("")}
+              className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                selectedCategory === ""
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted hover:bg-muted/80"
+              }`}
+            >
+              전체
+            </button>
+            {stats.categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(String(cat.id))}
+                className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                  selectedCategory === String(cat.id)
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted hover:bg-muted/80"
+                }`}
+              >
+                {cat.category_name}
+              </button>
+            ))}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      )}
+
+      {/* 랭킹 테이블 */}
+      {loading ? (
+        <div className="text-center py-12 text-muted-foreground">
+          로딩 중...
+        </div>
+      ) : (
+        <RankingTable rankings={rankings} />
+      )}
     </div>
   );
 }
