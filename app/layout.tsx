@@ -10,8 +10,8 @@ const geistSans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "올리브영 리뷰 대시보드",
-  description: "올리브영 랭킹/베스트 상품 리뷰 분석 대시보드",
+  title: "뷰티인사이트",
+  description: "뷰티 트렌드 & 콘텐츠 스튜디오",
 };
 
 export default function RootLayout({
@@ -27,32 +27,32 @@ export default function RootLayout({
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex items-center justify-between h-16">
                 <Link href="/" className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-primary">올리브영 리뷰 대시보드</span>
+                  <span className="text-xl font-bold text-primary">뷰티인사이트</span>
                 </Link>
                 <div className="flex items-center gap-6">
                   <Link
                     href="/"
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    메인
+                    홈
                   </Link>
                   <Link
                     href="/rankings"
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    랭킹 비교
+                    트렌드
                   </Link>
                   <Link
                     href="/reviews"
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    리뷰 검색
+                    리뷰
                   </Link>
                   <Link
                     href="/ad-creative"
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    소재 생성
+                    스튜디오
                   </Link>
                 </div>
               </div>

@@ -68,10 +68,9 @@ export default function AdCreativePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">광고 소재 생성</h1>
+        <h1 className="text-2xl font-bold text-gray-900">콘텐츠 스튜디오</h1>
         <p className="text-sm text-gray-500 mt-1">
-          이미지를 업로드하고 AI로 편집한 뒤, 카피를 추가하여 1080x1080 광고
-          소재를 만드세요.
+          이미지를 업로드하고 AI로 편집한 뒤, 카피를 추가하여 1080x1080 소재를 만드세요.
         </p>
       </div>
 
